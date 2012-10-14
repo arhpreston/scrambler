@@ -11,13 +11,13 @@ word.
 Words are taken from the official
 [scrabble dictionary](http://www.isc.ro/en/commands/lists.html). On
 startup they are stored in a [trie](http://en.wikipedia.org/wiki/Trie)
-for fast lookup.
+for fast (O(1)) lookup.
 
 ## Usage
 
 To simulate the following game
 
-![UNPG,RIAE,EAYS,TSTO](/home/andrew/scrambler/example.png "Scramble! [UNPG,RIAE,EAYS,TSTO]")
+![UNPG,RIAE,EAYS,TSTO](https://raw.github.com/arhpreston/scrambler/master/static/example.png "Scramble! [UNPG,RIAE,EAYS,TSTO]")
 
 Run
 
@@ -26,10 +26,10 @@ Run
 After a few seconds an ordered (by score) list of all possible words
 will be printed:
 
-    64 64 PIRAYAS		[2, 5, 4, 9, 10, 6, 11]
-    124 60 YAREST		[10, 9, 4, 8, 13, 14]
+    64 64 PIRAYAS               [2, 5, 4, 9, 10, 6, 11]
+    124 60 YAREST               [10, 9, 4, 8, 13, 14]
     ...
-    5800 2 SO		[11, 15]
+    5800 2 SO           [11, 15]
     Total words: 312
     Sum (top 20): 985
     Sum (top 50): 2103

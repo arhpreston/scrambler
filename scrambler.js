@@ -1,4 +1,5 @@
 /*jshint smarttabs:true*/
+"use strict";
 
 /*
  * scrambler.js
@@ -38,7 +39,7 @@ var SCORES = {
     'X': 0,
     'Y': 3,
     'Z': 10
-}
+};
 
 // The scramble board is a 4x4 grid:
 //
@@ -67,8 +68,8 @@ var GRAPH = {
     12: [8, 9, 13],
     13: [8, 9, 10, 12, 14],
     14: [9, 10, 11, 13, 15],
-    15: [10, 11, 14],
-}
+    15: [10, 11, 14]
+};
 
 function normalize_string(value) {
     value = value.replace(/[,\s]/g, "");
@@ -76,13 +77,12 @@ function normalize_string(value) {
     return value;
 }
 
-var WORD_FILE = "TWL06.txt"
-var IS_WORD = 1
-var WORD_COUNT = 0
-var WORD_TREE = {}
+var IS_WORD = 1;
+var WORD_COUNT = 0;
+var WORD_TREE = {};
 
 function load_dictionary(word_list) {
-    var word_tree = {}
+    var word_tree = {};
 
     $(word_list).each(function(i) {
         WORD_COUNT += 1;
@@ -102,10 +102,11 @@ function load_dictionary(word_list) {
     return word_tree;
 }
 
-function init_dictionary() {
+function init_dictionary(dictionary_url) {
+    console.log(dictionary_url);
     $.ajax({
         type: "GET",
-        url: WORD_FILE,
+        url: dictionary_url,
         dataType: "text",
         success: function(data) {
             var words = data.split("\n");
@@ -125,10 +126,11 @@ function calc_score(word, path, bonus_squares) {//dw, dl, tw, tl) {
         "tl": []
     };
 
-    var bonus_squares = $.extend({}, defaults, bonus_squares);
+    bonus_squares = $.extend({}, defaults, bonus_squares);
 
     var word_len = word.length;
     var word_score = 0;
+    var length_bonus = 0;
     var word_multiplier = 1;
 
     word = word.replace("QU", "Q");
@@ -139,11 +141,11 @@ function calc_score(word, path, bonus_squares) {//dw, dl, tw, tl) {
         var letter = letters[i];
         var index = path[i];
         var letter_score = SCORES[letter];
-        letter_multiplier *= bonus_squares["dl"].indexOf(index) != -1 ? 2 : 1;
-        letter_multiplier *= bonus_squares["tl"].indexOf(index) != -1 ? 3 : 1;
-        word_multiplier   *= bonus_squares["dw"].indexOf(index) != -1 ? 2 : 1;
-        word_multiplier   *= bonus_squares["tw"].indexOf(index) != -1 ? 3 : 1;
-        word_score += letter_multiplier * letter_score
+        letter_multiplier *= bonus_squares.dl.indexOf(index) !== -1 ? 2 : 1;
+        letter_multiplier *= bonus_squares.tl.indexOf(index) !== -1 ? 3 : 1;
+        word_multiplier   *= bonus_squares.dw.indexOf(index) !== -1 ? 2 : 1;
+        word_multiplier   *= bonus_squares.tw.indexOf(index) !== -1 ? 3 : 1;
+        word_score += letter_multiplier * letter_score;
     });
 
     switch(word_len) {
@@ -153,7 +155,6 @@ function calc_score(word, path, bonus_squares) {//dw, dl, tw, tl) {
     case  7: length_bonus = 10; break;
     case  6: length_bonus =  6; break;
     case  5: length_bonus =  3; break;
-    default: length_bonus =  0;
     }
 
     return word_multiplier * word_score + length_bonus;
@@ -172,7 +173,7 @@ function scramble(board, bonus_squares) {
     console.log("Scrambling", board);
 
     // map WORD => word_score
-    found_words = {};
+    var found_words = {};
 
     function build_paths(graph, path, word_tree) {
 

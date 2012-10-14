@@ -19,15 +19,15 @@ To simulate the following game
 
 ![UNPG,RIAE,EAYS,TSTO](https://raw.github.com/arhpreston/scrambler/master/static/example.png "Scramble! [UNPG,RIAE,EAYS,TSTO]")
 
-Run
+Go to http://preston.co.nz/scrambler.html or run
 
     $ python scrambler.py UNPG,RIAE,EAYS,TSTO -tl 8 -tw 9 -tl 10 -tl 14
 
 After a few seconds an ordered (by score) list of all possible words
 will be printed:
 
-    64 64 PIRAYAS               [2, 5, 4, 9, 10, 6, 11]
-    124 60 YAREST               [10, 9, 4, 8, 13, 14]
+    64 64 PIRAYAS       [2, 5, 4, 9, 10, 6, 11]
+    124 60 YAREST       [10, 9, 4, 8, 13, 14]
     ...
     5800 2 SO           [11, 15]
     Total words: 312

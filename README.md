@@ -11,7 +11,7 @@ word.
 Words are taken from the official
 [scrabble dictionary](http://www.isc.ro/en/commands/lists.html). On
 startup they are stored in a [trie](http://en.wikipedia.org/wiki/Trie)
-for fast (O(1)) lookup.
+for fast (`O(1)`) lookup.
 
 ## Usage
 

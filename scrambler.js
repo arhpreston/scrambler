@@ -84,7 +84,7 @@
         15: [10, 11, 14]
     };
 
-    scrambler.normalize_string = function(value) {
+    scrambler.normalizeString = function(value) {
         if (value instanceof Array) return value;
         value = value.replace(/[,\s]/g, "");
         value = value.toUpperCase();
@@ -95,13 +95,13 @@
     var WORD_COUNT = 0;
     var WORD_TREE = {};
 
-    function load_dictionary(word_list) {
-        var word_tree = {};
+    function loadDictionary(words) {
+        var wordTree = {};
 
-        $(word_list).each(function(i) {
+        $(words).each(function(i) {
             WORD_COUNT += 1;
-            var letters = scrambler.normalize_string(word_list[i]).split("");
-            var leaf = word_tree;
+            var letters = scrambler.normalizeString(words[i]).split("");
+            var leaf = wordTree;
 
             $(letters).each(function(j) {
                 var letter = letters[j];
@@ -113,7 +113,7 @@
             leaf[IS_WORD] = true;
         });
 
-        return word_tree;
+        return wordTree;
     }
 
     scrambler.initDictionary = function(dictionaryUrl, callback) {
@@ -123,14 +123,14 @@
             dataType: "text",
             success: function(data) {
                 var words = data.split("\n");
-                WORD_TREE = load_dictionary(words);
+                WORD_TREE = loadDictionary(words);
                 console.log("Loaded dictionary with ", WORD_COUNT, " words");
                 if (callback) callback(WORD_COUNT, WORD_TREE);
             },
         });
     }
 
-    function calc_score(word, path, bonus_squares) {
+    function calcScore(word, path, bonusSquares) {
 
         var defaults = {
             "dw": [],
@@ -139,41 +139,41 @@
             "tl": []
         };
 
-        bonus_squares = $.extend({}, defaults, bonus_squares);
+        bonusSquares = $.extend({}, defaults, bonusSquares);
 
-        var word_len = word.length;
-        var word_score = 0;
-        var length_bonus = 0;
-        var word_multiplier = 1;
+        var wordLen = word.length;
+        var wordScore = 0;
+        var lengthBonus = 0;
+        var wordMultiplier = 1;
 
         word = word.replace("QU", "Q");
         var letters = word.split("");
 
         $(letters).each(function(i) {
-            var letter_multiplier = 1;
+            var letterMultiplier = 1;
             var letter = letters[i];
             var index = path[i];
-            var letter_score = scrambler.SCORES[letter];
-            letter_multiplier *= bonus_squares.dl.indexOf(index) !== -1 ? 2 : 1;
-            letter_multiplier *= bonus_squares.tl.indexOf(index) !== -1 ? 3 : 1;
-            word_multiplier   *= bonus_squares.dw.indexOf(index) !== -1 ? 2 : 1;
-            word_multiplier   *= bonus_squares.tw.indexOf(index) !== -1 ? 3 : 1;
-            word_score += letter_multiplier * letter_score;
+            var letterScore = scrambler.SCORES[letter];
+            letterMultiplier *= bonusSquares.dl.indexOf(index) !== -1 ? 2 : 1;
+            letterMultiplier *= bonusSquares.tl.indexOf(index) !== -1 ? 3 : 1;
+            wordMultiplier   *= bonusSquares.dw.indexOf(index) !== -1 ? 2 : 1;
+            wordMultiplier   *= bonusSquares.tw.indexOf(index) !== -1 ? 3 : 1;
+            wordScore += letterMultiplier * letterScore;
         });
 
-        switch(word_len) {
-        case 10: length_bonus = 28; break;
-        case  9: length_bonus = 20; break;
-        case  8: length_bonus = 15; break;
-        case  7: length_bonus = 10; break;
-        case  6: length_bonus =  6; break;
-        case  5: length_bonus =  3; break;
+        switch(wordLen) {
+        case 10: lengthBonus = 28; break;
+        case  9: lengthBonus = 20; break;
+        case  8: lengthBonus = 15; break;
+        case  7: lengthBonus = 10; break;
+        case  6: lengthBonus =  6; break;
+        case  5: lengthBonus =  3; break;
         }
 
-        return word_multiplier * word_score + length_bonus;
+        return wordMultiplier * wordScore + lengthBonus;
     }
 
-    function build_word(path, board) {
+    function buildWord(path, board) {
         var letters = "";
         $(path).each(function(i) {
             letters += board[path[i]];
@@ -181,50 +181,50 @@
         return letters;
     }
 
-    scrambler.scramble = function(board, bonus_squares) {
-        board = scrambler.normalize_string(board);
+    scrambler.scramble = function(board, bonusSquares) {
+        board = scrambler.normalizeString(board);
         console.log("Scrambling", board);
 
-        // map WORD => word_score
-        var found_words = {};
+        // map WORD => wordScore, wordPath
+        var foundWords = {};
 
-        function build_paths(graph, path, word_tree) {
+        function buildPaths(graph, path, wordTree) {
 
-            var node, new_paths, adjacent_nodes;
+            var node, newPaths, adjacentNodes;
 
             if (path.length > 0) {
                 node = path[path.length-1];
-                adjacent_nodes = graph[node];
+                adjacentNodes = graph[node];
             } else {
-                new_paths = [];
-                adjacent_nodes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+                newPaths = [];
+                adjacentNodes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
             }
 
 
-            $(adjacent_nodes).each(function(i) {
-                var adjacent_node = adjacent_nodes[i];
+            $(adjacentNodes).each(function(i) {
+                var adjacentNode = adjacentNodes[i];
 
-                if (path.indexOf(adjacent_node) == -1) {
-                    var new_path = path.slice(0); // copy
-                    new_path.push(adjacent_node); // append
+                if (path.indexOf(adjacentNode) == -1) {
+                    var newPath = path.slice(0); // copy
+                    newPath.push(adjacentNode);  // append
 
-                    var new_letter = board[adjacent_node];
+                    var newLetter = board[adjacentNode];
 
-                    if (word_tree[new_letter]) {
-                        if (word_tree[new_letter][IS_WORD]) {
-                            var word = build_word(new_path, board);
-                            var score = calc_score(word, new_path, bonus_squares);
-                            found_words[word] = {"score": score, "path": new_path};
+                    if (wordTree[newLetter]) {
+                        if (wordTree[newLetter][IS_WORD]) {
+                            var word = buildWord(newPath, board);
+                            var score = calcScore(word, newPath, bonusSquares);
+                            foundWords[word] = {"score": score, "path": newPath};
                         }
-                        build_paths(graph, new_path, word_tree[new_letter]);
+                        buildPaths(graph, newPath, wordTree[newLetter]);
                     }
                 }
             });
         }
 
-        build_paths(GRAPH, [], WORD_TREE);
+        buildPaths(GRAPH, [], WORD_TREE);
 
-        console.log("Found ", Object.keys(found_words).length, " words");
-        return found_words;
+        console.log("Found ", Object.keys(foundWords).length, " words");
+        return foundWords;
     }
 })(window.scrambler = window.scrambler || {});

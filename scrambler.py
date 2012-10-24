@@ -66,7 +66,7 @@ GRAPH = {
 # Scramble uses the scrabble dictionary:
 #
 #     http://www.isc.ro/en/commands/lists.html
-WORD_FILE = 'TWL06.txt'
+WORD_FILE = 'static/TWL06.txt'
 
 
 def normalize_string(value):
@@ -113,7 +113,7 @@ def load_dictionary(word_file=WORD_FILE, restrict_to=''):
     with open(word_file) as f:
         for word in f.readlines():
             word = normalize_string(word)
-            if restrict_to and set(word).issubset(restrict_to):
+            if not restrict_to or set(word).issubset(restrict_to):
                 word_count += 1
                 leaf = trie
                 for letter in word:
@@ -249,7 +249,8 @@ def option_parser(args=None):
 
     options.board = normalize_string(options.board)
 
-    assert len(options.board) == 16, 'Board must be 16 characters long (a 4x4 grid).'
+    if not options.test:
+        assert len(options.board) == 16, 'Board must be 16 characters long (a 4x4 grid).'
 
     return options
 
